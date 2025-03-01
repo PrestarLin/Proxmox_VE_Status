@@ -51,7 +51,9 @@ cpu_info_api='
 	$res->{cpu_frequency} = $cpufreqs . $corefreqs;
 
     $res->{cpu_temperatures} = `sensors`;
+    $res->{cpu_power} = `turbostat --quiet --cpu package --show "PkgWatt" -S sleep 0.25 2>&1 | tail -n1`;
 		'
+
 
 # CPU 主频信息 Web UI
 cpu_freq_display=',
@@ -88,6 +90,24 @@ cpu_freq_display=',
 	        return output.replace(/\\n/g, '"'"'<br>'"'"');
 	    }
 	},'
+ 
+ cpu_power=',
+     {
+        itemId: '"'"'cpu-power'"'"',
+        colspan: 2,
+        printBar: false,
+        title: gettext('"'"'CPU功率'"'"'),
+        textField: '"'"'cpu_power'"'"',
+        renderer: function(value) {
+            let power = value.match(/(\d+\.\d+)/);
+            if (power) {
+                return `CPU功率: ${power[0]} W`;
+            } else {
+                return '无法获取CPU功率信息';
+            }
+        }
+    },'
+
 
 # CPU 温度信息 Web UI
 if [ $CPU = "Intel" ]; then
